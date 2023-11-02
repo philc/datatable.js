@@ -1,0 +1,105 @@
+:root {
+  --dark-rule: #ddd;
+  --light-rule: #f2f2f2;
+}
+
+table.datatable {
+  border-collapse: collapse;
+  font-size: 15px;
+  margin: 0 8px;
+}
+
+.datatable td, .datatable th {
+  padding: 6px 8px;
+  margin: 0;
+  border-bottom: 1px solid #eee;
+}
+
+.datatable th {
+  border-top: 0;
+  cursor: pointer;
+  /* We use border-box here because we manipulate the width of these th cells in tableset.js so that
+     column widths are equal across tables, and we don't want to manually calculate padding width etc. */
+  box-sizing: border-box;
+  border: 0;
+  font-weight: 500; /* semi-bold. To work, this weight must be supported by the font. */
+}
+
+.datatable th span { pointer-events: none; }
+.datatable th.desc span:after { content: "↓"; }
+.datatable th.asc span:after { content: "↑"; }
+
+.datatable thead {
+  background-color: var(--light-rule);
+  text-align: left;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--dark-rule);
+}
+
+.datatable th:first-of-type, .datatable td:first-of-type {
+  width: 100%;
+  /* Make room for the "selected row" checkmark. */
+  padding-left: 14px;
+}
+
+.datatable td.number {
+  text-align: right;
+}
+
+/* Visual indication that there will be an action (e.g. filtering) if a column is clicked. */
+.datatable td.clickable {
+  color: var(--link-color);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.datatable td.clickable:hover {
+  color: var(--link-hover-color);
+}
+
+.datatable tr.selected td:first-of-type:before {
+  content: "✓";
+  position: absolute;
+  margin-left: -1em;
+  color: black;
+}
+
+.datatable tr.unselected td {
+  color: #B2B2B2;
+}
+
+.filter-settings {
+  padding: 6px;
+  background-color: var(--light-rule);
+  display: flex;
+  min-height: 30px;
+  position: sticky;
+  top: 0;
+  margin-bottom: 1px;
+  border-bottom: 1px solid var(--dark-rule);
+  z-index: 1;
+  align-items: center;
+}
+.filter-settings .filters-container {
+  display: flex;
+  flex: 1;
+}
+
+.filter-settings .filter {
+  background-color: white;
+  padding: 7px 9px 7px 4px;
+  font-size: 14px;
+  border-radius: 8px;
+  margin-right: 6px;
+}
+
+.filter-settings .remove {
+  padding: 2px 5px;
+  margin-right: 1px;
+  color: #337ab7;
+  cursor: pointer;
+}
+
+.filter-settings .remove:hover {
+  background-color: var(--light-rule);
+}
