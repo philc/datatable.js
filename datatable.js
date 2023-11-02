@@ -16,55 +16,50 @@ const createLocale = (precision) =>
     minimumFractionDigits: precision,
   });
 
-// TODO(philc): Move these formatters into one object called "Formatters".
-const formatCurrency = (v, _, precision) => {
-  if (!isValidNumber(v)) return "-";
-  if (precision == null) precision = 2;
-  if (!cachedLocales[precision]) {
-    cachedLocales[precision] = createLocale(precision);
-  }
-  return "$" + cachedLocales[precision].format(v);
+const formatters = {
+  currency: (v, _, precision) => {
+    if (!isValidNumber(v)) return "-";
+    if (precision == null) precision = 2;
+    if (!cachedLocales[precision]) {
+      cachedLocales[precision] = createLocale(precision);
+    }
+    return "$" + cachedLocales[precision].format(v);
+  },
+  dollars: (v) => formatters.currency(v, null, 0),
+  percent: (v, _, precision = 2) => {
+    if (!isValidNumber(v)) return "-";
+    if (!cachedLocales[precision]) {
+      cachedLocales[precision] = createLocale(precision);
+    }
+    return cachedLocales[precision].format(v * 100) + "%";
+  },
+  percent0: (v) => formatters.percent(v, null, 0),
+  percent1: (v) => formatters.percent(v, null, 1),
+  fixed: (v, _, precision) => {
+    if (!isValidNumber(v)) return "-";
+    if (!cachedLocales[precision]) {
+      cachedLocales[precision] = createLocale(precision);
+    }
+    return cachedLocales[precision].format(v);
+  },
+  fixed0: ((v) => formatters.fixed(v, null, 0)),
+  fixed1: ((v) => formatters.fixed(v, null, 1)),
+  fixed2: ((v) => formatters.fixed(v, null, 2)),
+
+  // Format in thousands, e.g. 3.2K.
+  thousands: (v, row) => formatters.fixed(v / 1000.0, row, 1) + "K",
+
+  // Format an ML calibration metric, e.g. 1.02x.
+  calibration: (v) => isValidNumber(v) ? v.toFixed(2) + "x" : "-",
 };
-
-const formatDollars = (v) => formatCurrency(v, null, 0);
-const formatCPM = (v) => formatCurrency(v && v / 1000);
-const formatPercent = (v, _, precision = 2) => {
-  if (!isValidNumber(v)) return "-";
-  if (!cachedLocales[precision]) {
-    cachedLocales[precision] = createLocale(precision);
-  }
-  return cachedLocales[precision].format(v * 100) + "%";
-};
-const formatPercent0 = (v) => formatPercent(v, null, 0);
-const formatPercent1 = (v) => formatPercent(v, null, 1);
-
-const formatFixed = (v, _, precision) => {
-  if (!isValidNumber(v)) return "-";
-  if (!cachedLocales[precision]) {
-    cachedLocales[precision] = createLocale(precision);
-  }
-  return cachedLocales[precision].format(v);
-};
-const formatFixed0 = (v) => formatFixed(v, null, 0);
-const formatFixed1 = (v) => formatFixed(v, null, 1);
-const formatFixed2 = (v) => formatFixed(v, null, 2);
-
-// Format in thousands, e.g. 3.2K.
-const formatThousands = (v, row) => formatFixed(v / 1000.0, row, 1) + "K";
-
-// Format an ML calibration metric, e.g. 1.02x.
-const formatCalibration = (v) => isValidNumber(v) ? v.toFixed(2) + "x" : "-";
-
-// Truncates the string if its length is > s and appends an ellipsis character.
-const truncate = (s, length) => s.length <= length ? s : s.substring(s, length - 1) + "…";
 
 class DataTable extends EventTarget {
   // options:
   // - sort: map of { column: order }. `order` can be either "asc" or "desc".
   // - formatters: a map of { column: formatterFn }, where formatterFn takes args [cellValue, row].
-  // - columns: a subset of columns to render from the rows passed to `renderMaps`. If null, the
-  //   columns will be detected from the keys of the first row passed to `renderMaps`.
-  // - columnNames: a map of { column: display name } for the columns provided in `columns`.
+  // - columns: a subset of columns to render from the rows passed to `renderRows`. If null, the
+  //   columns will be detected from the keys of the first row passed to `renderRows`.
+  // - columnNames: a map of { column: display-name } for the columns provided in `columns`.
   // - clickableColumns: the names of columns which should be styled to indicate that they're
   //   clickable.
   constructor(options) {
@@ -268,4 +263,4 @@ function removeColumns(rows, columns) {
   }
 }
 
-export { DataTable };
+export { DataTable, formatters };
