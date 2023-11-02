@@ -126,6 +126,10 @@ class DataTable extends EventTarget {
       return;
     }
     this.sortOptions = sortOptions;
+    // Redraw the table with the new sort.
+    if (this.rows) {
+      this.renderRows(this.rows, this.isSelectedFn);
+    }
   }
 
   // Render the given rows.
@@ -134,6 +138,7 @@ class DataTable extends EventTarget {
   renderRows(rows, isSelectedFn) {
     // Store `rows` so that we can retrieve the typed (non-formatted) value when a TD is clicked.
     this.rows = rows;
+    this.isSelectedFn = isSelectedFn;
 
     const tbody = this.el.querySelector("tbody");
     if (!this.rows[0]) {
@@ -206,7 +211,7 @@ class DataTable extends EventTarget {
     const rowCount = Math.min(rows.length, this.pageSize);
     for (let i = 0; i < rowCount; i++) {
       const row = rows[i];
-      const rowClass = isSelectedFn
+      const rowClass = this.isSelectedFn
         ? `class="${isSelectedFn(row) ? "selected" : "unselected"}"`
         : null;
       html.push(`<tr data-i='${i}' ${rowClass}>`);
